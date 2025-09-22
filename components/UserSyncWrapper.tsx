@@ -5,6 +5,8 @@ import { useUser } from '@clerk/nextjs';
 import { useCallback, useState } from 'react';
 import { useMutation } from 'convex/react';
 import { LoadingSpinner } from './LoadingSpinner';
+import streamClient from '@/lib/stream';
+import { createToken } from '@/actions/createToken';
 
 function UserSyncWrapper({ children }: { children: React.ReactNode}) {
     const { user, isLoaded: isUserLoaded } = useUser();
@@ -21,12 +23,37 @@ function UserSyncWrapper({ children }: { children: React.ReactNode}) {
             setIsLoading(true);
             setError(null);
 
-            await createOrUpdateUser({
+            const token = await createToken(user.id);
+            if (!token)
+            return token;
+        
+
+            //Sync user data to Convex
+            await createOrUpdateUser(
+                {
                 userId: user.id,
-                name: user.fullName || "",
-                email: user.emailAddresses[0].emailAddress || "",
+                name: 
+                user.fullName || 
+                user.firstName ||
+                user.emailAddresses[0]?.emailAddress ||
+                "Unknown User",
+                 email: user.emailAddresses[0].emailAddress || "",
                 imageUrl: user.imageUrl || "",
             });
+
+            // 2. Connect user to stream
+            await streamClient.connectUser(
+                {
+                    id: user.id,
+                    name: 
+                    user.fullName || 
+                    user.firstName ||
+                    user.emailAddresses[0]?.emailAddress ||
+                    "Unknown User",
+                    image: user.imageUrl || "",
+                },
+                token
+            );
         } catch (err) {
             console.error("Failed syncing user:", err);
             setError(err instanceof Error ? err.message : "Failed to sync user.");
