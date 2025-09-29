@@ -19,6 +19,7 @@ import { UserButton, useUser } from "@clerk/nextjs"
 import { ChannelList } from "stream-chat-react"
 import { Channel } from "diagnostics_channel"
 import { ChannelFilters, ChannelSort } from "stream-chat"
+import { NewChatDialog } from "./NewChatDialog"
 
 
 
@@ -60,9 +61,12 @@ const sort: ChannelSort = {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className="gap-2">
-            <Button className="w-full" variant="outline">
-              Start New Chat
-            </Button>
+            {/* New Chat Button */}
+            <NewChatDialog>
+              <Button className="w-full" variant="outline">
+                Start New Chat
+              </Button>
+            </NewChatDialog>
             {/*  Channels List */}
             <ChannelList 
             filters={filters} 
