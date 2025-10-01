@@ -117,8 +117,13 @@ function UserSearch({
                                                 </p>
                                             </div>
                                         </div>
-                                    </div>
 
+                                        {/* Selection Indicator */}
+                                        <div className="flex-shrink-0">
+                                            <div className="h-2 w-2 rounded-full bg-primary opacity-0
+                                            group-hover:opacity-100 transition-opacity"></div>
+                                        </div>
+                                    </div>
                                 </button>
                             ))}
                         </div>
