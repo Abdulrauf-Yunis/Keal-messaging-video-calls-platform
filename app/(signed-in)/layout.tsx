@@ -13,6 +13,7 @@ import streamclient from "@/lib/stream";
 import Link from "next/link";
 
 import { Chat } from "stream-chat-react";
+import "stream-chat-react/dist/css/v2/index.css";
 
 function Layout({children}: {children: React.ReactNode}) {
   return ( 

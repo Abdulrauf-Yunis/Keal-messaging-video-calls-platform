@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -17,10 +18,11 @@ import UserSearch from "./UserSearch"
 import Image from "next/image"
 import { XIcon } from "lucide-react"
 import { Input } from "./ui/input"
+import { Button } from "./ui/button"
 
 export function NewChatDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const [selectedChat, setSelectedChat] = useState<Doc<"users">[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<Doc<"users">[]>([]);
   const [groupName, setGroupName] = useState("");
   const createNewChat = useCreateNewChat();
   const { user } = useUser();
@@ -28,23 +30,39 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
 
   const handleSelectUser = (user: Doc<"users">) => {
     // Avoid adding duplicates
-    if (!selectedChat.find((u) => u._id === user._id)) {
-      setSelectedChat((prev) => [...prev, user]);
+    if (!selectedUsers.find((u) => u._id === user._id)) {
+      setSelectedUsers((prev) => [...prev, user]);
     }
   };
 
   const removeUser = (userId: string) => {
-    setSelectedChat((prev) => prev.filter((user) => user._id !== userId));
+    setSelectedUsers((prev) => prev.filter((user) => user._id !== userId));
   };
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (!newOpen) {
       // Reset state when dialog is closed
-      setSelectedChat([]);
+      setSelectedUsers([]);
       setGroupName("");
     }
   };
+
+  const handleCreateChat = async () => {
+    const totalMembers = selectedUsers.length + 1; // +1 for current user
+    const isGroupChat = totalMembers > 2;
+
+    const channel = await createNewChat({
+         members: [
+          user?.id as string,
+          ...selectedUsers.map((user) => user.userId),
+         ],
+         createdBy: user?.id as string,
+         groupName: isGroupChat ? groupName.trim()  || undefined : undefined,
+    });
+
+    setActiveChannel(channel)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -101,7 +119,7 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
                 ))}
               </div>
 
-              {/* Group Name Input fro Group Chats */}
+              {/* Group Name Input for Group Chats */}
               {selectedUsers.length > 1 && (
                 <div className="space-y-2">
                   <label
@@ -114,7 +132,7 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
                       id="groupName"
                       className="w-full"
                       type="text"
-                      placeholders="Enter a name for your group chat..."
+                      placeholder="Enter a name for your group chat..."
                       value={groupName}
                       onChange={(e) => setGroupName(e.target.value)}
                       />
@@ -128,7 +146,30 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
             </div>
           )}
           </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={selectedUsers.length === 0}
+                onClick={handleCreateChat}
+                >
+                  {selectedUsers.length > 1
+                    ? `Create Group Chat (${selectedUsers.length +1} members)`
+                    : selectedUsers.length === 1
+                      ? "Start Chat" 
+                      : "Create Chat"}
+                </Button>
+          </DialogFooter>
       </DialogContent>
     </Dialog>
   )
+}
+
+function selectedUsers(arg0: never[]) {
+  throw new Error("Function not implemented.")
 }
