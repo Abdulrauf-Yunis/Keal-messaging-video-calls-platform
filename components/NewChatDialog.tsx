@@ -13,6 +13,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import UserSearch from "./UserSearch"
+import Image from "next/image"
+import { XIcon } from "lucide-react"
+import { Input } from "./ui/input"
 
 export function NewChatDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -55,8 +59,75 @@ export function NewChatDialog({ children }: { children: React.ReactNode }) {
         </DialogHeader>
 
         <div className="space-y-4">
-          
-        </div>
+          {/*Search Component*/}
+          <UserSearch onSelectUser={handleSelectUser} className="w-full"/>
+
+          {/*Selected Users */}
+          {selectedUsers.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-foreground">
+                Selected Users ({selectedUsers.length})
+              </h4>
+              <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                {selectedUsers.map((user) => (
+                  <div
+                    key={user._id}
+                    className="flex items-cente justify-between p-2 bg-muted/50 border border-border rounded-lg"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Image
+                          src={user.imageUrl}
+                          alt={user.name}
+                          width={24}
+                          height={24}
+                          className="h-6 w-6 rounded-full object-cover"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {user.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {user.email}
+                            </p>
+                          </div>
+                      </div>
+                      <button
+                        onClick={()=> removeUser(user._id)}
+                        className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                        >
+                          <XIcon className="h-4 w-4" />
+                        </button>
+                    </div>
+                ))}
+              </div>
+
+              {/* Group Name Input fro Group Chats */}
+              {selectedUsers.length > 1 && (
+                <div className="space-y-2">
+                  <label
+                   htmlFor="groupName"
+                   className="text-sm font-medium text-foreground"
+                   >
+                    Group Name (Optional)
+                    </label>
+                    <Input
+                      id="groupName"
+                      className="w-full"
+                      type="text"
+                      placeholders="Enter a name for your group chat..."
+                      value={groupName}
+                      onChange={(e) => setGroupName(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Leave empty to use default name: &quot;Group chat (
+                          {selectedUsers.length +1} members)&quot;
+                      </p>
+                      </div>
+              )}
+
+            </div>
+          )}
+          </div>
       </DialogContent>
     </Dialog>
   )
