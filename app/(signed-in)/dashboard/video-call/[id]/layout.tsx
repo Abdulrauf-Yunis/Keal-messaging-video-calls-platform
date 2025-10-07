@@ -3,7 +3,6 @@ import { createToken } from "@/actions/createToken";
 import { InlineSpinner } from "@/components/LoadingSpinner";
 import { StatusCard } from "@/components/StatusCard";
 import { useUser } from "@clerk/nextjs";
-import { Description } from "@radix-ui/react-dialog";
 import {
     Call,
     CallingState,
@@ -15,6 +14,8 @@ import {
 import { AlertTriangle, Video } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+
+import "@stream-io/video-react-sdk/dist/css/styles.css";
 
 
 if (!process.env.NEXT_PUBLIC_STREAM_API_KEY) {
